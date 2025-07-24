@@ -12,11 +12,22 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // \App\Models\User::factory(10)->create();
-
-        // \App\Models\User::factory()->create([
-        //     'name' => 'Test User',
-        //     'email' => 'test@example.com',
-        // ]);
+        // Seed les données dans l'ordre approprié
+        $this->call([
+            UserRoleSeeder::class,        // Créer les rôles d'abord
+            UserTypeSeeder::class,        // Créer les types d'utilisateurs
+            UserSeeder::class,            // Créer les utilisateurs
+            CategorySeeder::class,        // Créer les catégories
+            ProductSeeder::class,         // Créer les produits
+            OrderSeeder::class,           // Créer les commandes
+            WishlistSeeder::class,        // Créer les listes de souhaits
+            FollowSeeder::class,          // Créer les relations d'abonnement
+            FavoriteSeeder::class,        // Créer les produits favoris
+            UserRatingSeeder::class,      // Créer les évaluations utilisateurs
+            ProductRatingSeeder::class,   // Créer les évaluations produits
+            FlagSeeder::class,           // Créer les signalements
+            ReportSeeder::class,         // Créer les rapports
+            DeliverySeeder::class,        // Créer les options de livraison
+        ]);
     }
 }

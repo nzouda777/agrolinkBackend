@@ -11,7 +11,7 @@ class TypeController extends Controller
 {
     public function index()
     {
-        return UserType::withCount('users')->get();
+        return UserType::all();
     }
 
     public function show($id)
@@ -22,7 +22,7 @@ class TypeController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'name' => 'required|string|max:50|unique:user_types',
+            'name' => 'required|string|in:individual,business,organization,nonprofit',
             'description' => 'nullable|string|max:255',
         ]);
 

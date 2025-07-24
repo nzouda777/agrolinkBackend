@@ -77,6 +77,6 @@ class CityController extends Controller
     public function findByRegion($regionId)
     {
         $region = Region::findOrFail($regionId);
-        return $region->cities()->get();
+        return $region->cities()->all();
     }
 }

@@ -22,7 +22,7 @@ class RoleController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'name' => 'required|string|max:50|unique:user_roles',
+            'name' => 'required|string|in:admin,seller,customer,moderator,support',
             'description' => 'nullable|string|max:255',
         ]);
 

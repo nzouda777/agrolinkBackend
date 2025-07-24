@@ -109,8 +109,8 @@ class SubscriptionController extends Controller
                 'subscription_id' => $subscription->id,
                 'start_date' => now(),
                 'end_date' => now()->addMonths(
-                    $subscription->billing_period === 'monthly' ? 1 :
-                    $subscription->billing_period === 'quarterly' ? 3 : 12
+                    $subscription->billing_period === 'monthly' ? 1 : 
+                    ($subscription->billing_period === 'quarterly' ? 3 : 12)
                 ),
                 'status' => 'active',
                 'payment_method' => $request->payment_method,

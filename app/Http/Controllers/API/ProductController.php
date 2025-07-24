@@ -27,7 +27,8 @@ class ProductController extends Controller
         if ($request->has('featured')) {
             $query->where('featured', $request->featured);
         }
-
+        // return product with its category
+        $query->with('category');
         return $query->paginate(20);
     }
 
@@ -39,6 +40,7 @@ class ProductController extends Controller
     public function store(Request $request)
     {
         $request->validate([
+            'seller_id' => 'required|exists:users,id',
             'category_id' => 'required|exists:categories,id',
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
@@ -48,8 +50,11 @@ class ProductController extends Controller
             'quantity' => 'required|integer|min:0',
             'status' => 'required|in:active,inactive,pending,rejected',
             'featured' => 'boolean',
+            'images' => 'array',
+            'images.*' => 'image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
 
+        // Créer le produit
         $product = Product::create([
             'seller_id' => $request->user()->id,
             'category_id' => $request->category_id,
@@ -60,12 +65,24 @@ class ProductController extends Controller
             'unit' => $request->unit,
             'quantity' => $request->quantity,
             'status' => $request->status,
-            'featured' => $request->featured,
+            'featured' => 1,
         ]);
+
+        // Gérer les images
+        if ($request->hasFile('images')) {
+            foreach ($request->file('images') as $index => $image) {
+                $path = $image->store('products', 'public');
+                $product->images()->create([
+                    'image_url' => $path,
+                    'sort_order' => $index + 1,
+                    'is_main' => $index === 0 // La première image est l'image principale
+                ]);
+            }
+        }
 
         return response()->json([
             'message' => 'Product created successfully',
-            'product' => $product
+            'product' => $product->load('images')
         ], 201);
     }
 
@@ -80,7 +97,9 @@ class ProductController extends Controller
         }
 
         $request->validate([
+            'seller_id' => 'required|exists:users,id',
             'category_id' => 'required|exists:categories,id',
+            'image' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
             'price' => 'required|numeric|min:0',
@@ -91,7 +110,21 @@ class ProductController extends Controller
             'featured' => 'boolean',
         ]);
 
-        $product->update($request->all());
+        $imagePath = $request->file('image')->store('products', 'public');
+
+        $product->update([
+            'seller_id' => $request->user()->id,
+            'category_id' => $request->category_id,
+            'image' => $imagePath,
+            'name' => $request->name,
+            'description' => $request->description,
+            'price' => $request->price,
+            'old_price' => $request->old_price,
+            'unit' => $request->unit,
+            'quantity' => $request->quantity,
+            'status' => $request->status,
+            'featured' => true,
+        ]);
 
         return response()->json([
             'message' => 'Product updated successfully',
@@ -247,5 +280,38 @@ class ProductController extends Controller
     {
         $product = Product::findOrFail($id);
         return $product->reviews()->with(['user'])->get();
+    }
+
+    public function indexProductBySeller($id)
+    {
+        $query = Product::with(['seller', 'category', 'variants', 'images']);
+        $products = $query->where('seller_id', $id)->get();
+
+        return response()->json([
+            'message' => 'Products retrieved successfully',
+            'products' => $products
+        ]);
+    }
+    
+    // delete product matching seller
+    public function deleteProductBySeller($sellerId, $productId)
+    {
+        $product = Product::findOrFail($productId);
+        // set incomming seller id as integer
+        $seller_id = (int) $sellerId;
+
+        if ($product->seller_id !== $seller_id) {
+            return response()->json([
+                'message' => 'Unauthorized to delete this product',
+                'incomingSellerId' => $sellerId,
+                'productSellerId' => $product->seller_id
+            ], 403);
+        }
+
+        $product->delete();
+
+        return response()->json([
+            'message' => 'Product deleted successfully'
+        ]);
     }
 }

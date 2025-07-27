@@ -3,10 +3,11 @@
 namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\DB;
 use App\Models\Category;
 use App\Models\CategoryTranslation;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
+
 
 class CategoryController extends Controller
 {
@@ -30,7 +31,14 @@ class CategoryController extends Controller
             'sort_order' => 'nullable|integer',
         ]);
 
-        $category = Category::create($request->all());
+        $category = Category::create([
+            'name' => $request->name,
+            'description' => $request->description,
+            'color' => $request->color,
+            'parent_id' => $request->parent_id,
+            'sort_order' => $request->sort_order,
+            'slug' => str_replace(" ", "-", $request->name),
+        ]);
 
         DB::transaction(function () use ($request, $category) {
 

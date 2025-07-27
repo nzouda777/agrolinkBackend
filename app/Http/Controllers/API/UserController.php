@@ -18,12 +18,13 @@ class UserController extends Controller
 
     public function show($id)
     {
-        return User::with(['role', 'type', 'city', 'settings', 'products', 'orders', 'reviews'])->findOrFail($id);
+        return User::with(['role', 'type', 'city', 'settings', 'products', 'reviews'])->findOrFail($id);
+     
     }
 
     public function showAuthenticated(Request $request)
     {
-        return $request->user()->load(['role', 'type', 'city', 'settings', 'products', 'orders', 'reviews']);
+        return $request->user()->load(['role', 'type', 'city', 'settings', 'products', 'reviews']);
     }
 
     public function updateProfile(Request $request)

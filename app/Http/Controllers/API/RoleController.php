@@ -11,7 +11,7 @@ class RoleController extends Controller
 {
     public function index()
     {
-        return UserRole::withCount('users')->get();
+        return response()->json(UserRole::withCount('users')->get());
     }
 
     public function show($id)

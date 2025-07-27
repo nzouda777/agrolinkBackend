@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
+use Illuminate\Support\Str;
 
 class AuthController extends Controller
 {
@@ -33,6 +34,15 @@ class AuthController extends Controller
             'type_id' => $request->type_id,
             'city_id' => $request->city_id,
         ]);
+
+        // bulk create payment api key for registered user if it is a business account
+        if ($request->type_id == 2) {
+            $apiKey = "pk_live_************";
+            $apiSecret = "sk_live_************";
+            $user->payment_api_key = $apiKey;
+            $user->payment_api_secret = $apiSecret;
+            $user->save();
+        }
 
         return response()->json([
             'message' => 'User registered successfully',

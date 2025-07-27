@@ -20,7 +20,7 @@ class ProductImageController extends Controller
     public function store(Request $request, $productId)
     {
         // Définir les types MIME autorisés
-        $allowedTypes = ['image/jpeg', 'image/png', 'image/gif'];
+        $allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
 
         $image = $request->file('image');
         try {
@@ -29,7 +29,7 @@ class ProductImageController extends Controller
 
             // Valider les données
             $validated = $request->validate([
-                'image' => 'required|image|mimes:jpeg,png,jpg,gif|max:5048',
+                'image' => 'required|image|mimes:jpeg,png,webp,jpg,gif|max:5048',
                 'is_main' => 'boolean',
                 'sort_order' => 'integer',
             ]);

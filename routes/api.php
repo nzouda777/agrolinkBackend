@@ -25,7 +25,8 @@ use App\Http\Controllers\API\{
     CartController,
     MessageAttachmentController,
     CategoryController,
-    NotificationController
+    NotificationController,
+    CheckoutController
 };
 
 /*
@@ -38,6 +39,9 @@ use App\Http\Controllers\API\{
 | be assigned to the "api" middleware group. Make something great!
 |
 */
+
+// payment
+Route::post('/checkout', [CheckoutController::class, 'initiatePayment'])->name('checkout');
 
 // Auth routes
 Route::post('/register', [AuthController::class, 'register']);

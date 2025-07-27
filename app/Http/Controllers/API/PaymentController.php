@@ -112,13 +112,20 @@ class PaymentController extends Controller
     public function createApiKey(Request $request)
     {
         $request->validate([
+            'user_id' => 'required',
             'provider' => 'required|string',
             'api_key' => 'required|string',
             'api_secret' => 'required|string',
             'is_live' => 'boolean',
         ]);
 
-        $apiKey = $request->user()->apiKeys()->create($request->all());
+        $apiKey = PaymentApiKey::create([
+            'user_id' => $request->user_id,
+            'provider' => $request->provider,
+            'api_key' => $request->api_key,
+            'api_secret' => $request->api_secret,
+            'is_live' => "true",
+        ]);
 
         return response()->json([
             'message' => 'API key created successfully',

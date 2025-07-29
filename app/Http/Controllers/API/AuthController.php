@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Support\Str;
+use App\Models\PaymentApiKey;
 
 class AuthController extends Controller
 {
@@ -36,12 +37,20 @@ class AuthController extends Controller
         ]);
 
         // bulk create payment api key for registered user if it is a business account
-        if ($request->type_id == 2) {
+        if ($request->type_id == 2 || $request->type_id == 3) {
             $apiKey = "pk_live_************";
             $apiSecret = "sk_live_************";
-            $user->payment_api_key = $apiKey;
-            $user->payment_api_secret = $apiSecret;
-            $user->save();
+            // $user->payment_api_key = $apiKey;
+            // $user->payment_api_secret = $apiSecret;
+            // $user->save();
+
+            PaymentApiKey::create([
+                'user_id' => $user->id,
+                'provider' => 'notchpay',
+                'api_key' => $apiKey,
+                'api_secret' => $apiSecret,
+                'is_live' => 1,
+            ]);
         }
 
         return response()->json([

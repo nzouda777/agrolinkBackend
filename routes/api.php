@@ -196,7 +196,7 @@ Route::middleware('auth:sanctum')->group(function () {
 Route::middleware('auth:sanctum')->group(function () {
     Route::apiResource('payment-methods', PaymentController::class);
     Route::post('/payment-api-keys', [PaymentController::class, 'createApiKey']);
-    Route::put('/payment-api-keys/{key}', [PaymentController::class, 'updateApiKey']);
+    Route::patch('/payment-api-keys/{key}', [PaymentController::class, 'update']);
 });
 
 // Subscription routes

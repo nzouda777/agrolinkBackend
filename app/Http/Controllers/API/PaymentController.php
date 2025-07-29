@@ -10,6 +10,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Config;
 use GuzzleHttp\Client;
+use App\Models\User;
 
 class PaymentController extends Controller
 {
@@ -62,47 +63,45 @@ class PaymentController extends Controller
 
     public function update(Request $request, $id)
     {
-        $payment = PaymentMethod::findOrFail($id);
+        $user = User::findOrFail($id);
 
-        if ($payment->user_id !== $request->user()->id) {
+        if ($user->id !== $request->user()->id) {
             return response()->json([
-                'message' => 'Unauthorized to update payment method'
+                'message' => 'Unauthorized to update API key'
             ], 403);
         }
 
         $request->validate([
-            'type' => 'required|in:mobile_money,bank_transfer,card,cash',
             'provider' => 'required|string',
-            'account_number' => 'required|string',
-            'is_default' => 'boolean',
+            'api_key' => 'required|string',
+            'api_secret' => 'required|string',
+            'is_live' => 'boolean',
         ]);
 
-        $payment->update($request->all());
-
-        // If this is default, make others non-default
-        if ($request->is_default) {
-            $request->user()->payments()
-                ->where('id', '!=', $payment->id)
-                ->update(['is_default' => false]);
-        }
+        $user->apiKeys()->update([
+            'provider' => $request->provider,
+            'api_key' => $request->api_key,
+            'api_secret' => $request->api_secret,
+            'is_live' => $request->is_live,
+        ]);
 
         return response()->json([
-            'message' => 'Payment method updated successfully',
-            'payment' => $payment
+            'message' => 'API key updated successfully',
+            'api_key' => $user->apiKeys()->first()
         ]);
     }
 
     public function destroy($id)
     {
-        $payment = PaymentMethod::findOrFail($id);
+        $user = User::findOrFail($id);
 
-        if ($payment->user_id !== $request->user()->id) {
+        if ($user->id ) {
             return response()->json([
                 'message' => 'Unauthorized to delete payment method'
             ], 403);
         }
 
-        $payment->delete();
+        $user->payments()->delete();
 
         return response()->json([
             'message' => 'Payment method deleted successfully'
@@ -124,7 +123,7 @@ class PaymentController extends Controller
             'provider' => $request->provider,
             'api_key' => $request->api_key,
             'api_secret' => $request->api_secret,
-            'is_live' => "true",
+            'is_live' => 1,
         ]);
 
         return response()->json([

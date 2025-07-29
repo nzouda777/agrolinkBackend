@@ -28,7 +28,7 @@ class CheckoutController extends Controller
             'amount' => $request->amount,
             'email'=> $request->email,
             'currency' => 'XAF',
-            'callback' => route('checkout'),
+            'callback' => 'http://172.20.10.4:3001/buyer/profile',
             'reference' => $reference,
             'metadata' => [
                 'order_id' => $request->order_id,
